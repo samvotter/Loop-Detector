@@ -1,4 +1,6 @@
+#include <cassert>
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -11,14 +13,14 @@ struct Node {
 };
 
 // node constructor
-Node::Node(int v = NULL) {
-	value = v;
+Node::Node(int val = NULL) {
+	value = val;
 }
 
 // inserts a new node at the end of the list
-void insert(Node* node, int v) {
-	
-	Node* temp = new Node(v);
+void insert(Node* node, int value) {
+
+	Node* temp = new Node(value);
 	Node* traverser = node;
 
 	while (traverser->next != NULL) {
@@ -39,6 +41,7 @@ void print_list(Node* node) {
 
 // attaches the final node back to the header making an infinite loop
 void loop(Node* head) {
+	cout << "Creating a loop by linking the end to the start." << endl;
 	Node* traverser = head;
 	while (traverser->next != NULL) {
 		traverser = traverser->next;
@@ -46,33 +49,38 @@ void loop(Node* head) {
 	traverser->next = head;
 }
 
+
 //detects whether or not there is a loop using a fast header and a slow header
-void detect_loop(Node* head) {
+bool detect_loop(Node* head) {
 	Node* fast = head;
 	Node* slow = head;
-	while (fast->next != NULL) {
-		cout << "Fast pointer value was: " << fast->value << endl;
-		fast = fast->next;
-		cout << "Fast pointer value is now: " << fast->value << endl;
-		if (fast == slow) {
-			cout << "LOOP! at " << fast->value;
-			return;
-		}
-		cout << "Slow pointer value was: " << slow->value << endl;
-		slow = slow->next;
-		cout << "Slow pointer value is now: " << slow->value << endl;
-		if (fast->next != NULL) {
-			cout << "Fast pointer value was: " << fast->value << endl;
+
+	cout << "Detecting if there is a loop . . ." << endl;
+
+		while (fast->next != NULL) {
 			fast = fast->next;
-			cout << "Fast pointer value is now: " << fast->value << endl;
 			if (fast == slow) {
 				cout << "LOOP! at " << fast->value;
-				return;
+				return true;
+			}
+			slow = slow->next;
+			if (fast->next != NULL) {
+				fast = fast->next;
+				if (fast == slow) {
+					cout << "LOOP! at " << fast->value;
+					return true;
+				}
 			}
 		}
-	}
 	cout << "No loop here!" << endl;
-	return;
+	return false;
+}
+
+void createLoop(Node* node_ptr, int length) {
+	cout << "Creating linked list of length: " << length << endl;
+	for (int i = 2; i <= length; i++) {
+		insert(node_ptr, i);
+	}
 }
 
 
@@ -80,15 +88,13 @@ int main() {
 	Node header(1);
 	Node* header_ptr = &header;
 
-	for (int i = 2; i < 25; i++) {
-		insert(header_ptr, i);
-	}
+	createLoop(header_ptr, 25);
 
 	print_list(header_ptr);
-	detect_loop(header_ptr);
-	cout << "The linked list, now cycling the list by attaching the final element back to the front." << endl;
+	assert(!detect_loop(header_ptr));
+
 	loop(header_ptr);
-	detect_loop(header_ptr);
+	assert(detect_loop(header_ptr));
 
 	return 0;
 }
